@@ -52,8 +52,10 @@ def get_weather(city):
 @app.route('/weather/<int:id>', methods=['GET'])
 def get_weather_by_id(id):
 	
-	data = [x for x in cities if x['id'] == id]
-	weather_url = base_url.format(city = data[0]['original'], units = 'metric', API_KEY = API_KEY)
+	#data = [x for x in cities if x['id'] == id]
+	data = session.execute("""SELECT * FROM weather.city WHERE id = '{}' ALLOW FILTERING""".format(id))
+	print(data)
+	weather_url = base_url.format(city = data.original, units = 'metric', API_KEY = API_KEY)
 
 	resp = requests.get(weather_url)
 
@@ -63,14 +65,14 @@ def get_weather_by_id(id):
 		res = resp.json()
 		weather = {
 			'id': id,
-			'city': data[0]['name'],
-			'original': data[0]['original'],
+			'city': data.name,
+			'original': data.original,
 			'temperature': res['main']['temp'],
 			'description': res['weather'][0]['description'],
 			'icon' : res['weather'][0]['icon']
 		}
 		print(weather)
-		#session.execute("""SELECT * FROM weather.city WHERE id = 2 ALLOW FILTERING;.format(name))
+
 		return jsonify(weather), resp.status_code
 	else:
 		return resp.reason
