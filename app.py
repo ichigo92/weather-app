@@ -28,23 +28,25 @@ def hello():
 
 @app.route('/weather/<string:city>', methods=['GET'])
 def get_weather(city):
+	data = session.execute("""SELECT * FROM weather.city WHERE name = '{}' ALLOW FILTERING""".format(city))
+	
 	weather_url = base_url.format(city = city, units = 'metric', API_KEY = API_KEY)
 
 	resp = requests.get(weather_url)
 
 	if resp.ok:
 		# print(resp.json())
-		data = [x for x in cities if x['name'] == city]
+
 		print(data)
 		res = resp.json()
 		weather = {
-			'id': data[0]['id'],
+			'id': data.id,
 			'city': city,
 			'temperature': res['main']['temp'],
 			'description': res['weather'][0]['description'],
 			'icon' : res['weather'][0]['icon']
 		}
-		#session.execute("""SELECT * FROM pokemon.stats WHERE name = '{}'""".format(name))
+
 		return jsonify(weather), resp.status_code
 	else:
 		return resp.reason
@@ -119,8 +121,8 @@ def create_city():
 	last_id = cities[-1]['id'];
 	last_id += 1
 	print(last_id)
-	#session.execute("""INSERT INTO weather.city(ID,Name,Original,Temperature,Description,Icon) VALUES(7,'{name}','{original}',14.9,'{description}','{icon}')""".format(name=city, original=city,))
-	cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
+	session.execute("""INSERT INTO weather.city(ID,Name,Original,Temperature,Description,Icon) VALUES({id},'{name}','{original}',{temperature},'{description}','{icon}')""".format(id=last_id, name=request.form['city'], original=request.form['city'], temperature=resp['main']['temp'], description=resp['weather'][0]['description'],icon=resp['weather'][0]['icon']))
+	#cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
 	
 	return jsonify({'message': 'created new city with weather'})
 
