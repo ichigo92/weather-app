@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, json
 from cassandra.cluster import Cluster
 import requests
+import logging
 
 cluster = Cluster(['cassandra'])
 session = cluster.connect()
@@ -29,6 +30,7 @@ def get_weather(city):
 		# print(resp.json())
 
 		print(data)
+
 		res = resp.json()
 		weather = {
 			'id': data.id,
@@ -46,8 +48,11 @@ def get_weather(city):
 def get_weather_by_id(id):
 	
 	#data = [x for x in cities if x['id'] == id]
-	data = session.execute("""SELECT * FROM weather.city WHERE id = '{}' ALLOW FILTERING""".format(id))
-	print(data)
+	rows = session.execute("""SELECT * FROM weather.city WHERE id = {} ALLOW FILTERING""".format(id))
+	data = None
+	for row in rows:
+		data = row
+	logging.info(data)
 	weather_url = base_url.format(city = data.original, units = 'metric', API_KEY = API_KEY)
 
 	resp = requests.get(weather_url)
@@ -98,7 +103,7 @@ def get_weather_for_all():
 
 		weather_data.append(weather)
 
-
+	logging.info(weather_data)
 	return jsonify(weather_data)
 
 @app.route('/weather', methods = ['POST'])
@@ -171,4 +176,4 @@ def profile(name):
 	return('<h1>That Pokemon does not exist!</h1>')
 
 if __name__ == '__main__':
-	app.run(port=8080)
+	app.run(host='0.0.0.0', port=8080)
