@@ -16,8 +16,9 @@ def hello():
 def get_all_weather():
 	print('inside get_all_weather')
 	rows = session.execute("SELECT * FROM weather.city")
-		for row in rows:
-			print row.id row.name row.original row.temperature row.description
+	for row in rows:
+		print row.id row.name row.original row.temperature row.description
+	return jsonify(rows)
 
 @app.route('/weather/<int:id>', methods=['GET'])
 def get_weather_by_id(id):
@@ -25,6 +26,7 @@ def get_weather_by_id(id):
 	rows = session.execute("SELECT * FROM weather.city WHERE id=%s")
 	for row in rows:
 		print row.id row.name row.original row.temperature row.description
+	return jsonify(rows)
 
 @app.route('/weather', methods=['POST'])
 def create_city():
@@ -34,6 +36,7 @@ def create_city():
 
     print(rows)
     print(rows['applied'])
+    return jsonify(rows)
 
 @app.route('/weather/<int:id>', methods = ['PUT'])
 def update_city(id):
@@ -44,6 +47,7 @@ def update_city(id):
 	print(rows[0])
 	print(rows['applied'])
 
+	return jsonify(rows)
 
 
 @app.route('/weather/<int:id>', methods = ['DELETE'])
@@ -55,4 +59,7 @@ def delete_city(id):
 	print(rows[0])
 	print(rows['applied'])
 
+	return jsonify(rows)
 
+if __name__ == '__main__':
+	app.run(host='0.0.0.0', port=8080)
