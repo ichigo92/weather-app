@@ -88,7 +88,7 @@ def get_weather_for_all():
 		print('before weather')
 		weather = {
 			'id': city.id,
-			'city': city.name,
+			'name': city.name,
 			'original': city.original,
 			'temperature': resp['main']['temp'],
 			'description': resp['weather'][0]['description'],
@@ -104,30 +104,39 @@ def get_weather_for_all():
 @app.route('/weather', methods = ['POST'])
 def create_city():
 
+	print('inside post')
+
 	if not request.form or not 'city' in request.form:
 		return jsonify({'Error': 'The new record needs to have a city name'}), 400
 	
+	print('before weather call')
 	weather_url = base_url.format(city = request.form['city'], units = 'metric', API_KEY = API_KEY)
 	resp = requests.post(weather_url, data = {'city': request.form['city']} ).json()
-	
+	print('after weather call')
 	last_id = session.execute("""SELECT COUNT(*) FROM weather.city""")
 
 	#last_id = cities[-1]['id'];
 	last_id += 1
 	print(last_id)
-	session.execute("""INSERT INTO weather.city(id,name,original,temperature,description,icon) VALUES({id},'{name}','{original}',{temperature},'{description}','{icon}')""".format(id=last_id, name=request.form['city'], original=request.form['city'], temperature=resp['main']['temp'], description=resp['weather'][0]['description'],icon=resp['weather'][0]['icon']))
+	resp = session.execute("""INSERT INTO weather.city(id,name,original,temperature,description,icon) VALUES({id},'{name}','{original}',{temperature},'{description}','{icon}')""".format(id=last_id, name=request.form['city'], original=request.form['city'], temperature=resp['main']['temp'], description=resp['weather'][0]['description'],icon=resp['weather'][0]['icon']))
+	print(resp)
 	#cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
-	
+	print('done')
+
 	return jsonify({'message': 'created new city with weather'})
 
 @app.route('/weather/<int:id>', methods = ['PUT'])
 def update_city(id):
 
+	print('inside put')
+
 	if not request.json or not 'city' in request.json:
 		return jsonify({'Error': 'Record does not exist'}), 404
 
-	session.execute("""UPDATE weather.city SET name='{updated_name}' WHERE id='{id}')""".format(name=request.json['city'], id=id))
-
+	print('inside update')
+	resp = session.execute("""UPDATE weather.city SET name='{updated_name}' WHERE id='{id}')""".format(updated_name=request.json['city'], id=id))
+	print(resp)
+	print('after update')
 
 	return jsonify({'message':'updated: /weather/{}'.format(id)})
 
@@ -145,9 +154,11 @@ def delete_city(city):
 def delete_city_by_id(id):
 	if not id:
 		return jsonify({'Error': 'The id is needed to delete'})
-	
-	session.execute("""DELETE FROM weather.city WHERE id='{}'""".format(id))
-	
+	print('before delete')
+	resp = session.execute("""DELETE FROM weather.city WHERE id='{}'""".format(id))
+	print(resp)
+	print('after delete')
+
 	return jsonify({'message': 'deleted: /weather/{}'.format(id)}) 
 
 
