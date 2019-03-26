@@ -137,7 +137,7 @@ def update_city(id):
 
 	print('inside put')
 
-	if not request.json or not 'city' in request.json:
+	if not request.form or not 'city' in request.form:
 		return jsonify({'Error': 'Record does not exist'}), 404
 
 	print('inside update')
