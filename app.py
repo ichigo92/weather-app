@@ -104,7 +104,7 @@ def get_weather_for_all():
 		weather_data.append(weather)
 
 
-	return jsonify(weather_data)
+	return jsonify(weather_data), 200
 
 @app.route('/weather', methods = ['POST'])
 def create_city():
@@ -130,7 +130,7 @@ def create_city():
 	#cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
 	print('done')
 
-	return jsonify({'message': 'created new city with weather'})
+	return jsonify({'message': 'created new city with weather'}), 201
 
 @app.route('/weather/<int:id>', methods = ['PUT'])
 def update_city(id):
@@ -145,28 +145,28 @@ def update_city(id):
 
 	print('after update')
 
-	return jsonify({'message':'updated: /weather/{}'.format(id)})
+	return jsonify({'message':'updated: /weather/{}'.format(id)}), 200
 
 
 @app.route('/weather/<string:city>', methods = ['DELETE'])
 def delete_city(city):
 	if not city:
-		return jsonify({'Error': 'The city name is needed to delete'})
+		return jsonify({'Error': 'The city name is needed to delete'}), 400
 	
 	session.execute("""DELETE FROM weather.city WHERE name='{}'""".format(city))
 
-	return jsonify({'message': 'deleted: /weather/{}'.format(city)}) 
+	return jsonify({'message': 'deleted: /weather/{}'.format(city)}), 200 
 
 @app.route('/weather/<int:id>', methods = ['DELETE'])
 def delete_city_by_id(id):
 	if not id:
-		return jsonify({'Error': 'The id is needed to delete'})
+		return jsonify({'Error': 'The id is needed to delete'}), 400
 	print('before delete')
 	resp = session.execute("""DELETE FROM weather.city WHERE id={}""".format(id))
 	print(resp)
 	print('after delete')
 
-	return jsonify({'message': 'deleted: /weather/{}'.format(id)}) 
+	return jsonify({'message': 'deleted: /weather/{}'.format(id)}), 200 
 
 
 @app.route('/pokemon/<name>')
