@@ -36,9 +36,9 @@ def create_city():
 	print('inside create_city')
 	rows = session.execute("""INSERT INTO weather.city (id, name, original, temperature, description, icon) VALUES (%(id)s, %(name)s, %(original)s, %(temperature)s, %(description)s, %(icon)s)""",{'id': 7, 'name': 'Vancouver', 'original': 'Vancouver', 'temperature': 14.5, 'description': 'black clouds', 'icon': '02n'})
 
-    print(rows)
-    print(rows['applied'])
-    return jsonify(rows)
+	print(rows)
+    	print(rows['applied'])
+    	return jsonify(rows)
 
 @app.route('/weather/<int:id>', methods = ['PUT'])
 def update_city(id):
