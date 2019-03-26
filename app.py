@@ -103,7 +103,7 @@ def get_weather_for_all():
 
 		weather_data.append(weather)
 
-	logging.info(weather_data)
+
 	return jsonify(weather_data)
 
 @app.route('/weather', methods = ['POST'])
@@ -118,13 +118,15 @@ def create_city():
 	weather_url = base_url.format(city = request.form['city'], units = 'metric', API_KEY = API_KEY)
 	resp = requests.post(weather_url, data = {'city': request.form['city']} ).json()
 	print('after weather call')
-	last_id = session.execute("SELECT COUNT(*) FROM weather.city")
+	count_rows = session.execute("SELECT COUNT(*) FROM weather.city")
 
 	#last_id = cities[-1]['id'];
+	for c in count_rows:
+		last_id = c.count
 	last_id += 1
-	print(last_id)
+	print(last_id, file=sys.stderr)
 	resp = session.execute("INSERT INTO weather.city(id,name,original,temperature,description,icon) VALUES(%s, %s, %s, %s, %s, %s)", (last_id, request.form['city'], request.form['city'], resp['main']['temp'], resp['weather'][0]['description'],resp['weather'][0]['icon']))
-	print(resp)
+	print(resp, file=sys.stderr)
 	#cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
 	print('done')
 
@@ -160,7 +162,7 @@ def delete_city_by_id(id):
 	if not id:
 		return jsonify({'Error': 'The id is needed to delete'})
 	print('before delete')
-	resp = session.execute("""DELETE FROM weather.city WHERE id='{}'""".format(id))
+	resp = session.execute("""DELETE FROM weather.city WHERE id={}""".format(id))
 	print(resp)
 	print('after delete')
 
