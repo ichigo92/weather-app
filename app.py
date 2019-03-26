@@ -123,7 +123,7 @@ def create_city():
 	#last_id = cities[-1]['id'];
 	last_id += 1
 	print(last_id)
-	resp = session.execute("""INSERT INTO weather.city(id,name,original,temperature,description,icon) VALUES({id},'{name}','{original}',{temperature},'{description}','{icon}')""".format(id=last_id, name=request.form['city'], original=request.form['city'], temperature=resp['main']['temp'], description=resp['weather'][0]['description'],icon=resp['weather'][0]['icon']))
+	resp = session.execute("INSERT INTO weather.city(id,name,original,temperature,description,icon) VALUES(%s, %s, %s, %s, %s, %s)", (last_id, request.form['city'], request.form['city'], resp['main']['temp'], resp['weather'][0]['description'],resp['weather'][0]['icon']))
 	print(resp)
 	#cities.append({'id': last_id, 'name':request.form['city'], 'original':request.form['city']})
 	print('done')
