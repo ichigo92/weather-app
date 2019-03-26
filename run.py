@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, json
 from cassandra.cluster import Cluster
 import requests
+import sys
 
 cluster = Cluster(['cassandra'])
 session = cluster.connect()
@@ -17,7 +18,9 @@ def get_all_weather():
 	print('inside get_all_weather')
 	rows = session.execute("SELECT * FROM weather.city")
 	for row in rows:
-		print row.id row.name row.original row.temperature row.description
+		print(row.id,row.name,row.original,row.temperature,row.description)
+
+	print(rows, file=sys.stderr)
 	return jsonify(rows)
 
 @app.route('/weather/<int:id>', methods=['GET'])
@@ -25,14 +28,13 @@ def get_weather_by_id(id):
 	print('inside get_weather_by_id')
 	rows = session.execute("SELECT * FROM weather.city WHERE id=%s")
 	for row in rows:
-		print row.id row.name row.original row.temperature row.description
+		print(row.id,row.name,row.original,row.temperature,row.description)
 	return jsonify(rows)
 
 @app.route('/weather', methods=['POST'])
 def create_city():
 	print('inside create_city')
-	rows = session.execute("""INSERT INTO weather.city (id, name, original, temperature, description, icon) VALUES (%(id)s, %(name)s, %(original)s, %(temperature)s, %(description)s, %(icon)s)""",
-    {'id': 7, 'name': 'Vancouver', 'original': 'Vancouver', 'temperature': 14.5, 'description': 'black clouds', 'icon': '02n'})
+	rows = session.execute("""INSERT INTO weather.city (id, name, original, temperature, description, icon) VALUES (%(id)s, %(name)s, %(original)s, %(temperature)s, %(description)s, %(icon)s)""",{'id': 7, 'name': 'Vancouver', 'original': 'Vancouver', 'temperature': 14.5, 'description': 'black clouds', 'icon': '02n'})
 
     print(rows)
     print(rows['applied'])
