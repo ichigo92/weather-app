@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, json
 from cassandra.cluster import Cluster
 import requests
-import logging
+import sys
 
 cluster = Cluster(['cassandra'])
 session = cluster.connect()
@@ -29,7 +29,7 @@ def get_weather(city):
 	if resp.ok:
 		# print(resp.json())
 
-		print(data)
+		print(data, file=sys.stderr)
 
 		res = resp.json()
 		weather = {
@@ -48,11 +48,11 @@ def get_weather(city):
 def get_weather_by_id(id):
 	
 	#data = [x for x in cities if x['id'] == id]
-	rows = session.execute("""SELECT * FROM weather.city WHERE id = {} ALLOW FILTERING""".format(id))
+	rows = session.execute("""SELECT * FROM weather.city WHERE id=%(id)s""",{'id': id})
 	data = None
 	for row in rows:
 		data = row
-	logging.info(data)
+	print(data, file=sys.stderr)
 	weather_url = base_url.format(city = data.original, units = 'metric', API_KEY = API_KEY)
 
 	resp = requests.get(weather_url)
@@ -118,7 +118,7 @@ def create_city():
 	weather_url = base_url.format(city = request.form['city'], units = 'metric', API_KEY = API_KEY)
 	resp = requests.post(weather_url, data = {'city': request.form['city']} ).json()
 	print('after weather call')
-	last_id = session.execute("""SELECT COUNT(*) FROM weather.city""")
+	last_id = session.execute("SELECT COUNT(*) FROM weather.city")
 
 	#last_id = cities[-1]['id'];
 	last_id += 1
@@ -139,8 +139,8 @@ def update_city(id):
 		return jsonify({'Error': 'Record does not exist'}), 404
 
 	print('inside update')
-	resp = session.execute("""UPDATE weather.city SET name='{updated_name}' WHERE id='{id}')""".format(updated_name=request.json['city'], id=id))
-	print(resp)
+	rows = session.execute("""UPDATE weather.city SET name=%(name)s WHERE id=%(id)s""", {'name': request.json['city'], 'id': id})
+
 	print('after update')
 
 	return jsonify({'message':'updated: /weather/{}'.format(id)})
