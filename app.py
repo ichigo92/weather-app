@@ -141,7 +141,7 @@ def update_city(id):
 		return jsonify({'Error': 'Record does not exist'}), 404
 
 	print('inside update')
-	rows = session.execute("""UPDATE weather.city SET name=%(name)s WHERE id=%(id)s""", {'name': request.json['city'], 'id': id})
+	rows = session.execute("""UPDATE weather.city SET name=%(name)s WHERE id=%(id)s""", {'name': request.form['city'], 'id': id})
 
 	print('after update')
 
